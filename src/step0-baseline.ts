@@ -1,56 +1,60 @@
 /**
- * PASO 0 — Baseline SIN framework.
+ * STEP 0 — Baseline WITHOUT a framework.
  *
- * Enrutamiento a mano: yo miro el string del usuario, decido con un `if`
- * cuál tool corresponde, extraigo los argumentos con regex, y la llamo.
- * Cero LangChain, cero LangGraph, cero modelo. Ni siquiera hay red.
+ * Hand-rolled routing: I look at the user's string, decide with an `if`
+ * which tool applies, extract the arguments with a regex, and call it.
+ * No LangChain, no LangGraph, no model. Not even a network call.
  *
- * Este es el punto de comparación para todo lo que viene.
+ * This is the reference point for everything that follows.
  */
 
-import { calculate, getWeather } from "./lib/toys.js";
+// Note the ".ts" extension: Node resolves the real file on disk. There is no
+// build step producing a ".js", so ".js" here would be a lie.
+import { calculate, getWeather } from "./lib/toys.ts";
 
 /**
- * El "router" hecho a mano. Toda la inteligencia del sistema vive acá.
+ * The hand-written router. All of the system's "intelligence" lives here.
  */
 function handle(userInput: string): string {
   const input = userInput.toLowerCase();
 
-  // --- Rama 1: parece una pregunta de clima ---
-  if (input.includes("clima") || input.includes("tiempo")) {
-    // Extraer la ciudad: asumo el patrón "... en <Ciudad>"
-    const match = userInput.match(/en\s+([A-ZÁÉÍÓÚÑ][\wáéíóúñ]*(?:\s+[A-ZÁÉÍÓÚÑ][\wáéíóúñ]*)*)/);
-    if (!match) return "No pude extraer la ciudad del input.";
+  // --- Branch 1: looks like a weather question ---
+  // Deliberately narrow: only the word "weather" triggers this branch, not
+  // "temperature" — that gap is what request #3 below is designed to expose.
+  if (input.includes("weather")) {
+    // Extract the city: assumes the pattern "... in <City>"
+    const match = userInput.match(/in\s+([A-ZÁÉÍÓÚÑ][\wáéíóúñ]*(?:\s+[A-ZÁÉÍÓÚÑ][\wáéíóúñ]*)*)/);
+    if (!match) return "Could not extract the city from the input.";
 
     const weather = getWeather(match[1]);
-    return `Clima en ${weather.city}: ${weather.tempC}°C, ${weather.condition}.`;
+    return `Weather in ${weather.city}: ${weather.tempC}°C, ${weather.condition}.`;
   }
 
-  // --- Rama 2: parece una operación aritmética ---
+  // --- Branch 2: looks like an arithmetic operation ---
   if (/[\d]\s*[+\-*/%]\s*[\d]/.test(userInput)) {
-    // Extraer la expresión: me quedo sólo con los caracteres "matemáticos"
+    // Extract the expression: keep only the "math" characters
     const expression = userInput.match(/[\d\s.+\-*/%()]+/)?.[0]?.trim();
-    if (!expression) return "No pude extraer la expresión del input.";
+    if (!expression) return "Could not extract the expression from the input.";
 
     try {
-      return `Resultado: ${calculate(expression)}`;
+      return `Result: ${calculate(expression)}`;
     } catch (error) {
-      return `Error al calcular: ${(error as Error).message}`;
+      return `Error while calculating: ${(error as Error).message}`;
     }
   }
 
-  // --- Rama 3: no sé qué hacer ---
-  return "No supe qué tool usar para eso.";
+  // --- Branch 3: no idea what to do ---
+  return "Didn't know which tool to use for that.";
 }
 
 // ---------------------------------------------------------------------------
 
 const requests = [
-  "¿Cómo está el clima en Bogotá?",           // -> getWeather, funciona
-  "Cuánto es 17 * 3 + 2",                      // -> calculate, funciona
-  "Necesito la temperatura de San José",       // -> ninguna: no dije "clima"
-  "Sumale 5 al doble de 21",                   // -> ninguna: no hay dígitos+operador
-  "Compará el clima de Lima y Quito",          // -> getWeather, pero sólo una ciudad
+  "What's the weather in Bogotá?",          // -> getWeather, works
+  "How much is 17 * 3 + 2",                  // -> calculate, argument extraction bug
+  "I need the temperature for San José",     // -> neither: says "temperature", not "weather"
+  "Add 5 to double of 21",                   // -> neither: no digit+operator pair
+  "Compare the weather in Lima and Quito",   // -> getWeather, but only one city
 ];
 
 for (const request of requests) {

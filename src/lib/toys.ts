@@ -1,10 +1,10 @@
 /**
- * Las dos "tools" de juguete, como funciones TypeScript planas.
+ * The two toy "tools", as plain TypeScript functions.
  *
- * Ojo: acá no hay nada de LangChain. Son funciones normales.
- * En el Paso 1 las vamos a envolver con `tool()` para que el modelo
- * pueda verlas y llamarlas — pero la lógica va a seguir siendo esta.
- * Así queda claro qué agrega el framework y qué no.
+ * Note: there is nothing from LangChain here. These are ordinary functions.
+ * In Step 1 we will wrap them with `tool()` so the model can see and call
+ * them — but the logic will stay exactly the same. That makes it obvious
+ * what the framework adds and what it does not.
  */
 
 export type Weather = {
@@ -13,12 +13,12 @@ export type Weather = {
   condition: string;
 };
 
-const CONDITIONS = ["soleado", "nublado", "lluvioso", "ventoso"];
+const CONDITIONS = ["sunny", "cloudy", "rainy", "windy"];
 
 /**
- * Clima mockeado. No llama ninguna API real.
- * Es determinístico (mismo input -> mismo output) para que las corridas
- * sean reproducibles: derivamos los valores de un hash simple del nombre.
+ * Mocked weather. Does not call any real API.
+ * Deterministic (same input -> same output) so runs are reproducible:
+ * we derive the values from a simple hash of the city name.
  */
 export function getWeather(city: string): Weather {
   let hash = 0;
@@ -27,25 +27,25 @@ export function getWeather(city: string): Weather {
   }
   return {
     city,
-    tempC: 5 + (hash % 31), // rango 5..35
+    tempC: 5 + (hash % 31), // range 5..35
     condition: CONDITIONS[hash % CONDITIONS.length],
   };
 }
 
 /**
- * Evalúa una expresión aritmética simple.
+ * Evaluates a simple arithmetic expression.
  *
- * LANZA una excepción si la expresión es inválida. Eso es a propósito:
- * en el Paso 3 vamos a usar ese error para forzar una rama del grafo.
+ * THROWS if the expression is invalid. That is intentional: in Step 3 we use
+ * that error to force a branch in the graph.
  *
- * No es "production-ready": usa `new Function` detrás de un whitelist de
- * caracteres. Suficiente para un PoC, no para input de usuarios reales.
+ * Not production-ready: it uses `new Function` behind a character whitelist.
+ * Good enough for a PoC, not for real user input.
  */
 export function calculate(expression: string): number {
-  // Whitelist: sólo dígitos, punto, espacios, paréntesis y + - * / %
+  // Whitelist: digits, dot, whitespace, parentheses and + - * / % only
   if (!/^[\d\s.+\-*/%()]+$/.test(expression)) {
     throw new Error(
-      `Expresión inválida: "${expression}". Sólo se permiten números y los operadores + - * / % ( ).`
+      `Invalid expression: "${expression}". Only numbers and the operators + - * / % ( ) are allowed.`
     );
   }
 
@@ -53,12 +53,12 @@ export function calculate(expression: string): number {
   try {
     result = new Function(`"use strict"; return (${expression});`)();
   } catch {
-    throw new Error(`No se pudo parsear la expresión: "${expression}".`);
+    throw new Error(`Could not parse expression: "${expression}".`);
   }
 
   if (typeof result !== "number" || !Number.isFinite(result)) {
     throw new Error(
-      `La expresión "${expression}" no produjo un número finito (dio: ${String(result)}).`
+      `Expression "${expression}" did not produce a finite number (got: ${String(result)}).`
     );
   }
 

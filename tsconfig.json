@@ -1,15 +1,28 @@
 {
   "compilerOptions": {
-    // ESM moderno: coincide con "type": "module" en package.json
+    // Modern ESM: matches "type": "module" in package.json
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2023"],
     "strict": true,
-    "noEmit": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+
+    // --- Node native TypeScript support ---
+    // We run `node src/file.ts` directly. Node does not compile TypeScript, it
+    // only strips the type annotations, so tsc is a type checker here and never
+    // a build step. Hence noEmit + importing the real ".ts" paths.
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+
+    // Errors on TypeScript syntax that Node's stripper cannot erase (enums,
+    // namespaces, parameter properties). Keeps us inside what Node can run.
+    "erasableSyntaxOnly": true,
+
+    // Forces `import type` for type-only imports. Without this, a type import
+    // survives stripping and blows up at runtime looking for a missing export.
+    "verbatimModuleSyntax": true
   },
   "include": ["src/**/*.ts"]
 }
