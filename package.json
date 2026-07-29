@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "step0": "node src/step0-baseline.ts",
-    "step1": "node --env-file=.env src/step1-agent.ts",
-    "step2": "node --env-file=.env src/step2-stategraph.ts",
-    "step3": "node --env-file=.env src/step3-branching.ts",
-    "step4": "node --env-file=.env src/step4-recursion.ts",
+    "step0": "node src/step0/index.ts",
+    "step1": "node --env-file=.env src/step1/index.ts",
+    "step2": "node --env-file=.env src/step2/index.ts",
+    "step3": "node --env-file=.env src/step3/index.ts",
+    "step4": "node --env-file=.env src/step4/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

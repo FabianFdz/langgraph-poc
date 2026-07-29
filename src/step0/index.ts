@@ -10,7 +10,7 @@
 
 // Note the ".ts" extension: Node resolves the real file on disk. There is no
 // build step producing a ".js", so ".js" here would be a lie.
-import { calculate, getWeather } from "./lib/toys.ts";
+import { calculate, getWeather } from "../lib/toys.ts";
 
 /**
  * The hand-written router. All of the system's "intelligence" lives here.
@@ -50,9 +50,9 @@ function handle(userInput: string): string {
 // ---------------------------------------------------------------------------
 
 const requests = [
-  "What's the weather in Bogotá?",          // -> getWeather, works
+  "What's the weather in San José, Costa Rica?", // -> getWeather, works (regex stops at the comma, drops ", Costa Rica")
   "How much is 17 * 3 + 2",                  // -> calculate, argument extraction bug
-  "I need the temperature for San José",     // -> neither: says "temperature", not "weather"
+  "I need the temperature",                  // -> neither: says "temperature", not "weather"
   "Add 5 to double of 21",                   // -> neither: no digit+operator pair
   "Compare the weather in Lima and Quito",   // -> getWeather, but only one city
 ];
