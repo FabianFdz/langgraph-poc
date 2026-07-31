@@ -1,4 +1,4 @@
-# langgraph-poc
+# LangGraph & LangChain PoC
 
 A step-by-step PoC for learning `langchain` + `@langchain/langgraph` in TypeScript, built with Claude via `@langchain/anthropic`.
 
